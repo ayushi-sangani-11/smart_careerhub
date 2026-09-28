@@ -1,25 +1,37 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getJobsApi } from '../services/api';
 import JobCard from '../components/JobCard';
-import { Search, Filter, Briefcase, MapPin, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { Search, MapPin, Briefcase, Sparkles, Filter } from 'lucide-react';
 
 export default function JobsPage() {
+  const locationState = useLocation();
+  const queryParams = new URLSearchParams(locationState.search);
+  const categoryParam = queryParams.get('category') || '';
+
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState('');
+  const [category, setCategory] = useState(categoryParam);
   const [location, setLocation] = useState('');
   const [type, setType] = useState('');
   const [sort, setSort] = useState('latest');
 
   useEffect(() => {
+    if (categoryParam) {
+      setCategory(categoryParam);
+    }
+  }, [categoryParam]);
+
+  useEffect(() => {
     fetchJobs();
-  }, [search, location, type, sort]);
+  }, [search, category, location, type, sort]);
 
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const res = await getJobsApi({ search, location, type, sort });
+      const res = await getJobsApi({ search, category, location, type, sort });
       if (res.data.success) {
         setJobs(res.data.jobs || []);
       }
@@ -30,14 +42,30 @@ export default function JobsPage() {
     }
   };
 
+  const categories = [
+    'Software Development',
+    'Data',
+    'Design',
+    'Cloud',
+    'Cybersecurity',
+    'Marketing',
+    'Finance',
+    'Business',
+    'HR',
+    'Testing',
+    'Other'
+  ];
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-extrabold text-white flex items-center space-x-2">
           <Briefcase className="w-6 h-6 text-sky-400" />
-          <span>Job Marketplace & AI Match</span>
+          <span>Job Marketplace</span>
         </h1>
-        <p className="text-xs text-slate-400">Discover Software Engineering & Tech opportunities scored against your candidate profile.</p>
+        <p className="text-xs text-slate-400">
+          Browse jobs freely across all career fields and run AI job-specific resume skill gap analyses.
+        </p>
       </div>
 
       {/* SEARCH AND FILTER BAR */}
@@ -50,21 +78,23 @@ export default function JobsPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by job title, company, or skill..."
+              placeholder="Search TCS, Accenture, Software Developer, Data Analyst..."
               className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500"
             />
           </div>
 
-          {/* Location filter */}
-          <div className="relative">
-            <MapPin className="w-4 h-4 text-slate-500 absolute left-3 top-3.5" />
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Filter location (Remote, SF...)"
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500"
-            />
+          {/* Category filter */}
+          <div>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-sky-500"
+            >
+              <option value="">All Career Categories</option>
+              {categories.map((cat, idx) => (
+                <option key={idx} value={cat}>{cat}</option>
+              ))}
+            </select>
           </div>
 
           {/* Job Type filter */}
@@ -74,7 +104,7 @@ export default function JobsPage() {
               onChange={(e) => setType(e.target.value)}
               className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-sky-500"
             >
-              <option value="">All Job Types</option>
+              <option value="">All Employment Types</option>
               <option value="Full-Time">Full-Time</option>
               <option value="Part-Time">Part-Time</option>
               <option value="Remote">Remote</option>
@@ -83,6 +113,29 @@ export default function JobsPage() {
             </select>
           </div>
         </div>
+      </div>
+
+      {/* QUICK CATEGORY PILLS */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setCategory('')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors ${
+            !category ? 'bg-sky-500/20 text-sky-300 border-sky-500/40' : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+          }`}
+        >
+          All Fields
+        </button>
+        {categories.map((cat, idx) => (
+          <button
+            key={idx}
+            onClick={() => setCategory(cat)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors ${
+              category === cat ? 'bg-sky-500/20 text-sky-300 border-sky-500/40' : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
       {/* JOBS GRID */}
@@ -94,7 +147,7 @@ export default function JobsPage() {
         <div className="glass-card p-12 text-center text-slate-400 space-y-3 border border-slate-800">
           <Briefcase className="w-10 h-10 text-slate-600 mx-auto" />
           <h3 className="text-sm font-bold text-white">No jobs found matching your filters</h3>
-          <p className="text-xs">Try clearing search inputs or exploring all job categories.</p>
+          <p className="text-xs">Try selecting 'All Fields' or clearing search terms.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
