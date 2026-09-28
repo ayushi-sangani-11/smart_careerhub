@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getProfileApi, updateProfileApi } from '../services/api';
-import { User, Mail, Phone, MapPin, GraduationCap, Target, Award, Save, CheckCircle, AlertCircle } from 'lucide-react';
+import { Save, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function ProfilePage() {
   const { user, updateUserState } = useAuth();
@@ -13,7 +13,7 @@ export default function ProfilePage() {
     college: '',
     degree: '',
     gradYear: '',
-    careerGoal: 'Full Stack Developer',
+    careerGoal: 'Software Engineer',
     skillsStr: '',
     bio: ''
   });
@@ -41,7 +41,7 @@ export default function ProfilePage() {
           college: u.college || '',
           degree: u.degree || '',
           gradYear: u.gradYear || '',
-          careerGoal: u.careerGoal || 'Full Stack Developer',
+          careerGoal: u.careerGoal || 'Software Engineer',
           skillsStr: (u.skills || []).join(', '),
           bio: u.bio || ''
         });
@@ -88,6 +88,24 @@ export default function ProfilePage() {
       </div>
     );
   }
+
+  const roles = [
+    'Software Engineer',
+    'MERN Developer',
+    'Java Developer',
+    'Python Developer',
+    'Data Analyst',
+    'Data Scientist',
+    'UI/UX Designer',
+    'Graphic Designer',
+    'Cloud Engineer',
+    'Cybersecurity Analyst',
+    'Digital Marketing',
+    'Business Analyst',
+    'QA / Testing',
+    'HR Specialist',
+    'Finance Analyst'
+  ];
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -219,14 +237,9 @@ export default function ProfilePage() {
               onChange={handleChange}
               className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-sky-500"
             >
-              <option value="Full Stack Developer">Full Stack Developer</option>
-              <option value="Frontend Developer">Frontend Developer</option>
-              <option value="Backend Developer">Backend Developer</option>
-              <option value="Python AI Engineer">Python AI Engineer</option>
-              <option value="DevOps Engineer">DevOps Engineer</option>
-              <option value="Data Analyst">Data Analyst</option>
-              <option value="Cloud Engineer">Cloud Engineer</option>
-              <option value="UI/UX Designer">UI/UX Designer</option>
+              {roles.map((role, idx) => (
+                <option key={idx} value={role}>{role}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -244,7 +257,7 @@ export default function ProfilePage() {
               name="skillsStr"
               value={formData.skillsStr}
               onChange={handleChange}
-              placeholder="React, JavaScript, Node.js, MongoDB, Express, Git"
+              placeholder="Java, SQL, Git, Data Structures, Python, React"
               className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-sky-500"
             />
           </div>
@@ -256,7 +269,7 @@ export default function ProfilePage() {
               name="bio"
               value={formData.bio}
               onChange={handleChange}
-              placeholder="Passionate computer science student looking for full-stack developer opportunities..."
+              placeholder="Enthusiastic candidate seeking opportunities in software development, data analytics, or cloud computing..."
               className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-sky-500"
             />
           </div>
